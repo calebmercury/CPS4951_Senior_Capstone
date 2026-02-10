@@ -4,6 +4,7 @@ from board import Board, load_piece_images
 
 
 def main():
+    #tetetete
     pygame.init()
     windowSize = 800
     screen = pygame.display.set_mode((windowSize, windowSize))
