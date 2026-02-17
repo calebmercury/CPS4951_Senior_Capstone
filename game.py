@@ -68,13 +68,13 @@ class Game:
             fen = self.board_to_fen()
             move = self.ai.get_best_move(fen)
 
-        if move:
-            fromSq, toSq = self.algebraic_to_square(move)
-            self.board.makeMove(fromSq, toSq)
+            if move:
+                fromSq, toSq = self.algebraic_to_square(move)
+                self.board.makeMove(fromSq, toSq)
 
-            self.turnColor = "w"
+                self.turnColor = "w"
 
-        self.aiThinking = False
+            self.aiThinking = False
 
         pass
 

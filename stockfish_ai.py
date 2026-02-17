@@ -1,7 +1,7 @@
 from stockfish import Stockfish
 
 class StockfishAI:
-    def __init__(self, path="stockfish"):
+    def __init__(self, path="/opt/homebrew/bin/stockfish"):
         self.engine = Stockfish(
             path=path,
             parameters={
