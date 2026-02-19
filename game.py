@@ -91,7 +91,7 @@ class Game:
         overlay.fill((0, 0, 0, 160))
         screen.blit(overlay, (0, 0))
         screen.blit(textSurf, (10, 6))
-
+    #converts piece notation to FEN so stockfish can read it
     def board_to_fen(self):
         fen = ""
         for r in range(8):
@@ -115,7 +115,7 @@ class Game:
         fen += "w" if self.turnColor == "w" else "b"
         fen += " - - 0 1"
         return fen
-    
+    #converts coordinates to current board format
     def algebraic_to_square(self, move):
         # "e2e4" → ((6,4), (4,4))
         from_file = ord(move[0]) - ord('a')
