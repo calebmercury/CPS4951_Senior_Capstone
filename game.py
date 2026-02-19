@@ -1,4 +1,5 @@
 import pygame
+import threading
 from board import Board
 from moves import getLegalMovesForSquare, inCheck
 from stockfish_ai import StockfishAI
@@ -16,6 +17,7 @@ class Game:
         self.ai = StockfishAI()
         self.aiColor = "b"   # AI plays black
         self.aiThinking = False
+        self.pendingAiMove = None
 
 
     def handleEvent(self, event):
@@ -62,21 +64,25 @@ class Game:
             self.legalMoves = []
 
     def update(self, dt):
-        if self.turnColor == self.aiColor and not self.aiThinking:
-            self.aiThinking = True
-
-            fen = self.board_to_fen()
-            move = self.ai.get_best_move(fen)
-
-            if move:
-                fromSq, toSq = self.algebraic_to_square(move)
-                self.board.makeMove(fromSq, toSq)
-
-                self.turnColor = "w"
-
+        if self.pendingAiMove is not None:
+            fromSq, toSq = self.pendingAiMove
+            self.pendingAiMove = None
+            self.board.makeMove(fromSq, toSq)
+            self.turnColor = "w"
             self.aiThinking = False
 
-        pass
+        if self.turnColor == self.aiColor and not self.aiThinking:
+            self.aiThinking = True
+            fen = self.board_to_fen()
+
+            def think():
+                move = self.ai.get_best_move(fen)
+                if move:
+                    self.pendingAiMove = self.algebraic_to_square(move)
+                else:
+                    self.aiThinking = False
+
+            threading.Thread(target=think, daemon=True).start()
 
     def draw(self, screen):
         self.board.draw(screen, self.squareSize, self.font, self.selectedSquare, self.legalMoves)
