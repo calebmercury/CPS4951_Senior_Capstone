@@ -1,7 +1,13 @@
 from stockfish import Stockfish
 
 class StockfishAI:
-    def __init__(self, path="/opt/homebrew/bin/stockfish"):
+    if difficulty == "easy": 
+        n = 1
+    elif difficulty == "medium":
+        n = 5
+    elif difficulty == "hard":
+        n= 10
+    def __init__(self, path="stockfish"):
         self.engine = Stockfish(
             path=path,
             parameters={
