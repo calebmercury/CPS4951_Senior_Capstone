@@ -2,11 +2,10 @@ import pygame
 import threading
 from board import Board
 from moves import getLegalMovesForSquare, inCheck, hasAnyLegalMoves
-from moves import getLegalMovesForSquare, inCheck
 from stockfish_ai import StockfishAI
 
 class Game:
-    def __init__(self, windowSize):
+    def __init__(self, windowSize, skill_level=5):
         self.windowSize = windowSize
         self.squareSize = windowSize // 8
         self.board = Board()
@@ -18,7 +17,7 @@ class Game:
         self.gameOver = False
         self.winner = None  # "w", "b", or None
         self.stalemate = False
-        self.ai = StockfishAI()
+        self.ai = StockfishAI(skill_level=skill_level)
         self.aiColor = "b"   # AI plays black
         self.aiThinking = False
         self.pendingAiMove = None
@@ -139,7 +138,7 @@ class Game:
         overlay.fill((0, 0, 0, 160))
         screen.blit(overlay, (0, 0))
         screen.blit(textSurf, (10, 6))
-
+    #converts piece notation to FEN so stockfish can read it
     def board_to_fen(self):
         fen = ""
         for r in range(8):
@@ -163,7 +162,7 @@ class Game:
         fen += "w" if self.turnColor == "w" else "b"
         fen += " - - 0 1"
         return fen
-    
+    #converts coordinates to current board format
     def algebraic_to_square(self, move):
         # "e2e4" → ((6,4), (4,4))
         from_file = ord(move[0]) - ord('a')
@@ -172,4 +171,3 @@ class Game:
         to_rank = 8 - int(move[3])
 
         return (from_rank, from_file), (to_rank, to_file)
-
