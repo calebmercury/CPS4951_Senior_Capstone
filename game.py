@@ -4,7 +4,7 @@ from moves import getLegalMovesForSquare, inCheck
 from stockfish_ai import StockfishAI
 
 class Game:
-    def __init__(self, windowSize):
+    def __init__(self, windowSize, skill_level=5):
         self.windowSize = windowSize
         self.squareSize = windowSize // 8
         self.board = Board()
@@ -13,7 +13,7 @@ class Game:
         self.legalMoves = []
         self.font = pygame.font.SysFont(None, self.squareSize // 2)
         self.smallFont = pygame.font.SysFont(None, 22)
-        self.ai = StockfishAI()
+        self.ai = StockfishAI(skill_level=skill_level)
         self.aiColor = "b"   # AI plays black
         self.aiThinking = False
 

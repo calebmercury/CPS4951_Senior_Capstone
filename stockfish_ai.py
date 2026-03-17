@@ -1,19 +1,14 @@
 from stockfish import Stockfish
 
 class StockfishAI:
-    if difficulty == "easy": 
-        n = 1
-    elif difficulty == "medium":
-        n = 5
-    elif difficulty == "hard":
-        n= 10
-    def __init__(self, path="stockfish"):
+    
+    def __init__(self, path="stockfish", skill_level=5):
         self.engine = Stockfish(
             path=path,
             parameters={
                 "Threads": 2,
                 "Minimum Thinking Time": 30,
-                "Skill Level": 10
+                "Skill Level": skill_level
             }
         )
 
