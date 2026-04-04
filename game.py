@@ -5,11 +5,12 @@ from moves import getLegalMovesForSquare, inCheck, hasAnyLegalMoves
 from stockfish_ai import StockfishAI
 
 class Game:
-    def __init__(self, windowSize, skill_level=5):
+    def __init__(self, windowSize, skill_level=5, player_color = "w"):
         self.windowSize = windowSize
         self.squareSize = windowSize // 8
         self.board = Board()
-        self.turnColor = "w"
+        self.player_color = player_color
+        self.turnColor = 'w'
         self.selectedSquare = None
         self.legalMoves = []
         self.font = pygame.font.SysFont(None, self.squareSize // 2)
@@ -18,7 +19,7 @@ class Game:
         self.winner = None  # "w", "b", or None
         self.stalemate = False
         self.ai = StockfishAI(skill_level=skill_level)
-        self.aiColor = "b"   # AI plays black
+        self.aiColor = "w" if player_color == "b" else "b"  # AI plays black
         self.aiThinking = False
         self.pendingAiMove = None
 
@@ -46,7 +47,7 @@ class Game:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_r:
                 self.board.reset()
-                self.turnColor = "w"
+                self.turnColor = self.aiColor
                 self.selectedSquare = None
                 self.legalMoves = []
                 self.gameOver = False
@@ -100,7 +101,7 @@ class Game:
             fromSq, toSq = self.pendingAiMove
             self.pendingAiMove = None
             self.board.makeMove(fromSq, toSq)
-            self.turnColor = "w"
+            self.turnColor = self.player_color if self.turnColor == self.aiColor else self.aiColor
             self.aiThinking = False
 
         if self.turnColor == self.aiColor and not self.aiThinking:
