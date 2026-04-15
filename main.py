@@ -1,5 +1,6 @@
 import pygame
 from board import Board, load_piece_images
+from game import Game
 
 DIFFICULTY_LEVELS = {
     "EASY":   1,
