@@ -134,11 +134,25 @@ class Game:
             if inCheck(self.board, self.turnColor):
                 checkText = "CHECK"
             info = f"Turn: {'White' if self.turnColor == 'w' else 'Black'}  (R to reset)  {checkText}"
-        textSurf = self.smallFont.render(info, True, (240, 240, 240))
+
+        score_diff = self.board.scoreWhite - self.board.scoreBlack
+        if score_diff > 0:
+            score_str = f"White +{score_diff}"
+        elif score_diff < 0:
+            score_str = f"Black +{-score_diff}"
+        else:
+            score_str = "Equal"
+        score_info = f"White: {self.board.scoreWhite}  Black: {self.board.scoreBlack}  ({score_str})"
+
         overlay = pygame.Surface((self.windowSize, 28), pygame.SRCALPHA)
         overlay.fill((0, 0, 0, 160))
         screen.blit(overlay, (0, 0))
+        textSurf = self.smallFont.render(info, True, (240, 240, 240))
         screen.blit(textSurf, (10, 6))
+
+        scoreSurf = self.smallFont.render(score_info, True, (240, 240, 240))
+        score_x = self.windowSize - scoreSurf.get_width() - 10
+        screen.blit(scoreSurf, (score_x, 6))
     #converts piece notation to FEN so stockfish can read it
     def board_to_fen(self):
         fen = ""

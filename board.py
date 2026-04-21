@@ -7,15 +7,21 @@ import main
 
 PIECE_IMAGES = {}
 
+PIECE_VALUES = {"P": 1, "N": 3, "B": 3, "R": 5, "Q": 9, "K": 0}
+
 class Board:
     def __init__(self):
         self.grid = [[None for _ in range(8)] for _ in range(8)]
         self.enPassantTarget = None  # Square that can be captured en passant (the square the pawn passed over)
+        self.scoreWhite = 0  # points earned by white (pieces captured from black)
+        self.scoreBlack = 0  # points earned by black (pieces captured from white)
         self.reset()
 
     def reset(self):
         self.grid = [[None for _ in range(8)] for _ in range(8)]
         self.enPassantTarget = None
+        self.scoreWhite = 0
+        self.scoreBlack = 0
 
         for c in range(8):
             self.grid[6][c] = Piece("P", "w")
@@ -30,6 +36,8 @@ class Board:
         newBoard = Board()
         newBoard.grid = [[None for _ in range(8)] for _ in range(8)]
         newBoard.enPassantTarget = self.enPassantTarget  # Copy en passant state
+        newBoard.scoreWhite = self.scoreWhite
+        newBoard.scoreBlack = self.scoreBlack
         for r in range(8):
             for c in range(8):
                 p = self.grid[r][c]
@@ -60,15 +68,25 @@ class Board:
             to_r, to_c = toSq
             if piece.color == "w":
                 captured_pawn_sq = (to_r + 1, to_c)
+                self.scoreWhite += PIECE_VALUES["P"]
             else:
                 captured_pawn_sq = (to_r - 1, to_c)
+                self.scoreBlack += PIECE_VALUES["P"]
             self.setPiece(captured_pawn_sq, None)
-        
+
+        # Score normal captures before overwriting the destination square
+        target = self.getPiece(toSq)
+        if target is not None and piece is not None:
+            if piece.color == "w":
+                self.scoreWhite += PIECE_VALUES.get(target.type, 0)
+            else:
+                self.scoreBlack += PIECE_VALUES.get(target.type, 0)
+
         # Clear en passant target at the start of each move (it only lasts one turn)
         # Save the old value first to check for double-step moves
         old_en_passant = self.enPassantTarget
         self.enPassantTarget = None
-        
+
         self.setPiece(toSq, piece)
         self.setPiece(fromSq, None)
 
