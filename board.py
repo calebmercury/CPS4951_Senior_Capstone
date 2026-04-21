@@ -1,7 +1,6 @@
 import pygame
 import os
 from pieces import Piece
-import main
 
 
 

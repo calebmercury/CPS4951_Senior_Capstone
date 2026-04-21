@@ -120,39 +120,74 @@ class Game:
     def draw(self, screen):
         self.board.draw(screen, self.squareSize, self.font, self.selectedSquare, self.legalMoves)
 
+        HUD_H     = 42
+        GOLD      = (210, 175, 90)
+        OFF_WHITE = (232, 232, 222)
+        MUTED     = (130, 130, 138)
+        RED       = (210, 65, 65)
+
+        overlay = pygame.Surface((self.windowSize, HUD_H), pygame.SRCALPHA)
+        overlay.fill((10, 10, 14, 220))
+        screen.blit(overlay, (0, 0))
+
+        # Thin gold bottom border on the HUD
+        pygame.draw.line(screen, (60, 50, 15),
+                         (0, HUD_H - 1), (self.windowSize, HUD_H - 1))
+
+        hud_font  = pygame.font.SysFont("Arial", 16, bold=True)
+        hud_small = pygame.font.SysFont("Arial", 14)
+
+        cy = HUD_H // 2  # vertical center of HUD
+
+        # ── Left: turn indicator ──────────────────────────────────────
+        dot_fill   = (235, 232, 220) if self.turnColor == "w" else (30, 30, 36)
+        dot_border = (180, 150, 60)  if self.turnColor == "w" else (100, 100, 115)
+        pygame.draw.circle(screen, dot_fill,   (18, cy), 9)
+        pygame.draw.circle(screen, dot_border, (18, cy), 9, 1)
+
+        turn_label = "White's Turn" if self.turnColor == "w" else "Black's Turn"
+        turn_surf  = hud_font.render(turn_label, True, OFF_WHITE)
+        screen.blit(turn_surf, (34, cy - turn_surf.get_height() // 2))
+
+        # ── Center: status ────────────────────────────────────────────
         if self.gameOver:
             if self.stalemate:
-                info = "Stalemate. (R to reset)"
-            elif self.winner == "w":
-                info = "Checkmate! White wins. (R to reset)"
-            elif self.winner == "b":
-                info = "Checkmate! Black wins. (R to reset)"
+                center_text  = "STALEMATE  —  R to reset"
+                center_color = MUTED
             else:
-                info = "Game over. (R to reset)"
+                winner = "WHITE" if self.winner == "w" else "BLACK"
+                center_text  = f"CHECKMATE  —  {winner} WINS  —  R to reset"
+                center_color = GOLD
+        elif self.aiThinking:
+            center_text  = "AI THINKING..."
+            center_color = MUTED
+        elif inCheck(self.board, self.turnColor):
+            center_text  = "CHECK"
+            center_color = RED
         else:
-            checkText = ""
-            if inCheck(self.board, self.turnColor):
-                checkText = "CHECK"
-            info = f"Turn: {'White' if self.turnColor == 'w' else 'Black'}  (R to reset)  {checkText}"
+            center_text  = ""
+            center_color = OFF_WHITE
 
+        if center_text:
+            c_surf = hud_font.render(center_text, True, center_color)
+            screen.blit(c_surf, (self.windowSize // 2 - c_surf.get_width() // 2,
+                                  cy - c_surf.get_height() // 2))
+
+        # ── Right: material score ─────────────────────────────────────
         score_diff = self.board.scoreWhite - self.board.scoreBlack
         if score_diff > 0:
-            score_str = f"White +{score_diff}"
+            adv_text  = f"White  +{score_diff}"
+            adv_color = (215, 210, 190)
         elif score_diff < 0:
-            score_str = f"Black +{-score_diff}"
+            adv_text  = f"Black  +{-score_diff}"
+            adv_color = (155, 150, 165)
         else:
-            score_str = "Equal"
-        score_info = f"White: {self.board.scoreWhite}  Black: {self.board.scoreBlack}  ({score_str})"
+            adv_text  = "Equal"
+            adv_color = MUTED
 
-        overlay = pygame.Surface((self.windowSize, 28), pygame.SRCALPHA)
-        overlay.fill((0, 0, 0, 160))
-        screen.blit(overlay, (0, 0))
-        textSurf = self.smallFont.render(info, True, (240, 240, 240))
-        screen.blit(textSurf, (10, 6))
-
-        scoreSurf = self.smallFont.render(score_info, True, (240, 240, 240))
-        score_x = self.windowSize - scoreSurf.get_width() - 10
-        screen.blit(scoreSurf, (score_x, 6))
+        adv_surf = hud_font.render(adv_text, True, adv_color)
+        screen.blit(adv_surf, (self.windowSize - adv_surf.get_width() - 14,
+                                cy - adv_surf.get_height() // 2))
     #converts piece notation to FEN so stockfish can read it
     def board_to_fen(self):
         fen = ""
